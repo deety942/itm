@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Membership Form</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00FF00;
+      font-family: monospace;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      width: 400px;
+      margin: 50px auto;
+      border: 1px solid #00FF00;
+      padding: 20px;
+    }
+
+    input, button {
+      background-color: black;
+      color: #00FF00;
+      border: 1px solid #00FF00;
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    #barcode-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Membership Form</h2>
+    <input type="text" id="firstName" placeholder="First Name">
+    <input type="text" id="lastName" placeholder="Last Name">
+    <input type="text" id="address" placeholder="Address">
+    <input type="text" id="postcode" placeholder="Postcode">
+    <button onclick="generateMembership()">Generate Membership</button>
+    <div id="barcode-container">
+      <p id="membershipNumber"></p>
+      <svg id="barcodeImage"></svg>
+    </div>
+  </div>
+
+  <script>
+    function generateMembership() {
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const address = document.getElementById("address").value;
+      const postcode = document.getElementById("postcode").value;
+
+      const membershipNumber = Math.floor(Math.random() * 1000000);
+      document.getElementById("membershipNumber").textContent = "Membership Number: " + membershipNumber;
+
+      const barcodeData = membershipNumber.toString();
+
+      JsBarcode("#barcodeImage", barcodeData, {
+        format: "CODE128",
+        displayValue: false,
+        width: 1,
+        height: 30,
+        margin: 5,
+        background: "white",
+        lineColor: "black",
+      });
+
+      // Send data to the server
+      fetch('/save_member', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+          address: address,
+          postcode: postcode,
+          membershipNumber: membershipNumber,
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    }
+  </script>
+</body>
+</html>
