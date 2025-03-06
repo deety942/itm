@@ -32,6 +32,12 @@
       margin-top: 20px;
       text-align: center;
     }
+
+    #memberInfo {
+      margin-top: 20px;
+      border: 1px solid #00FF00;
+      padding: 10px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
@@ -47,6 +53,12 @@
       <p id="membershipNumber"></p>
       <svg id="barcodeImage"></svg>
     </div>
+    <div style="margin-top:20px;">
+      <h2>Search Member</h2>
+      <input type="text" id="searchId" placeholder="Membership ID">
+      <button onclick="searchMember()">Search</button>
+    </div>
+    <div id="memberInfo"></div>
   </div>
 
   <script>
@@ -92,6 +104,28 @@
       .catch((error) => {
         console.error('Error:', error);
       });
+    }
+
+    function searchMember() {
+      const searchId = document.getElementById("searchId").value;
+      fetch(`/get_member/${searchId}`)
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Member not found');
+          }
+        })
+        .then(member => {
+          document.getElementById("memberInfo").innerHTML = `
+            <p><strong>Name:</strong> ${member.firstName} ${member.lastName}</p>
+            <p><strong>Address:</strong> ${member.address}</p>
+            <p><strong>Postcode:</strong> ${member.postcode}</p>
+          `;
+        })
+        .catch(error => {
+          document.getElementById("memberInfo").innerHTML = `<p>${error.message}</p>`;
+        });
     }
   </script>
 </body>
