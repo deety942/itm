@@ -3,7 +3,41 @@
 <head>
     <title>Membership Form</title>
     <style>
-        /* ... your existing CSS ... */
+        body {
+            background-color: black;
+            color: #00FF00;
+            font-family: monospace;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 400px;
+            margin: 50px auto;
+            border: 1px solid #00FF00;
+            padding: 20px;
+        }
+
+        input, button {
+            background-color: black;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #barcode-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #memberInfo {
+            margin-top: 20px;
+            border: 1px solid #00FF00;
+            padding: 10px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
