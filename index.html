@@ -46,6 +46,7 @@
     <h2>Membership Form</h2>
     <input type="text" id="firstName" placeholder="First Name">
     <input type="text" id="lastName" placeholder="Last Name">
+    <input type="password" id="password" placeholder="Password">
     <button onclick="generateMembership()">Generate Membership</button>
     <div id="barcode-container">
         <p id="membershipNumber"></p>
@@ -62,6 +63,7 @@
     function generateMembership() {
         const firstName = document.getElementById("firstName").value;
         const lastName = document.getElementById("lastName").value;
+        const password = document.getElementById("password").value;
 
         const membershipNumber = Math.floor(Math.random() * 1000000);
         document.getElementById("membershipNumber").textContent = "Membership Number: " + membershipNumber;
@@ -85,6 +87,7 @@
             body: JSON.stringify({
                 firstName: firstName,
                 lastName: lastName,
+                password: password,
                 membershipNumber: membershipNumber,
             }),
         })
