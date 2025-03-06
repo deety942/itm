@@ -107,7 +107,7 @@
     }
 
     function searchMember() {
-      const searchId = document.getElementById("searchId").value;
+      const searchId = parseInt(document.getElementById("searchId").value); // Changed this line
       fetch(`/get_member/${searchId}`)
         .then(response => {
           if (response.ok) {
