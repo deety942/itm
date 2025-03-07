@@ -69,16 +69,23 @@
     <div id="customerList"></div>
 </div>
 <script>
+    let currentMembershipNumber = null; // Store the generated membership number
+
     function generateMembership() {
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const username = document.getElementById("username").value;
-        const referenceNumber = document.getElementById("referenceNumber").value;
+        const firstName = document.getElementById("firstName").value.trim();
+        const lastName = document.getElementById("lastName").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const referenceNumber = document.getElementById("referenceNumber").value.trim();
 
-        const membershipNumber = Math.floor(Math.random() * 1000000);
-        document.getElementById("membershipNumber").textContent = "Membership Number: " + membershipNumber;
+        if (!firstName || !lastName || !username || !referenceNumber) {
+            document.getElementById("membershipNumber").textContent = "Please fill all fields";
+            return;
+        }
 
-        const barcodeData = membershipNumber.toString();
+        currentMembershipNumber = Math.floor(Math.random() * 1000000).toString();
+        document.getElementById("membershipNumber").textContent = "Membership Number: " + currentMembershipNumber;
+
+        const barcodeData = currentMembershipNumber;
         JsBarcode("#barcodeImage", barcodeData, {
             format: "CODE128",
             displayValue: false,
@@ -99,20 +106,28 @@
                 lastName: lastName,
                 username: username,
                 referenceNumber: referenceNumber,
-                membershipNumber: membershipNumber,
+                membershipNumber: currentMembershipNumber,
             }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save member');
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Success:', data);
+                // Auto-populate search field with new membership number
+                document.getElementById("searchId").value = currentMembershipNumber;
             })
             .catch((error) => {
                 console.error('Error:', error);
+                document.getElementById("membershipNumber").textContent = "Error saving member";
             });
     }
 
     function searchMember() {
-        const searchId = document.getElementById("searchId").value.trim(); // Get the input value and remove whitespace
+        const searchId = document.getElementById("searchId").value.trim();
         if (!searchId) {
             document.getElementById("memberInfo").innerHTML = "<p>Please enter a Membership ID</p>";
             return;
@@ -126,7 +141,6 @@
                 return response.json();
             })
             .then(member => {
-                // Assuming the backend returns the member object directly
                 document.getElementById("memberInfo").innerHTML = `
                     <p><strong>Membership ID:</strong> ${searchId}</p>
                     <p><strong>Name:</strong> ${member.firstName} ${member.lastName}</p>
