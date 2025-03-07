@@ -113,7 +113,7 @@
 
     function searchMember() {
         const searchId = parseInt(document.getElementById("searchId").value);
-        fetch(/get_member/${searchId})
+        fetch(`/get_member/${searchId}`)  // Fixed template literal syntax
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -122,14 +122,14 @@
                 }
             })
             .then(member => {
-                document.getElementById("memberInfo").innerHTML = 
+                document.getElementById("memberInfo").innerHTML = `
                     <p><strong>Name:</strong> ${member.firstName} ${member.lastName}</p>
                     <p><strong>Username:</strong> ${member.username}</p>
                     <p><strong>Reference Number:</strong> ${member.referenceNumber}</p>
-                ;
+                `;
             })
             .catch(error => {
-                document.getElementById("memberInfo").innerHTML = <p>${error.message}</p>;
+                document.getElementById("memberInfo").innerHTML = `<p>${error.message}</p>`;
             });
     }
 
@@ -141,7 +141,7 @@
 
                 for (const memberId in members) {
                     const member = members[memberId];
-                    text += ${member.firstName},${member.lastName},${member.username},${member.referenceNumber},${memberId}\n;
+                    text += `${member.firstName},${member.lastName},${member.username},${member.referenceNumber},${memberId}\n`;
                 }
 
                 const element = document.createElement('a');
@@ -165,7 +165,7 @@
                 let customerListHTML = "<h2>Customer List</h2><ul>";
                 for (const memberId in members) {
                     const member = members[memberId];
-                    customerListHTML += <li>${member.firstName} ${member.lastName} (ID: ${memberId})</li>;
+                    customerListHTML += `<li>${member.firstName} ${member.lastName} (ID: ${memberId})</li>`;
                 }
                 customerListHTML += "</ul>";
                 document.getElementById("customerList").innerHTML = customerListHTML;
