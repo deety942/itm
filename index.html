@@ -38,6 +38,11 @@
             border: 1px solid #00FF00;
             padding: 10px;
         }
+        #customerList {
+            margin-top: 20px;
+            border: 1px solid #00FF00;
+            padding: 10px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
@@ -60,6 +65,8 @@
     </div>
     <div id="memberInfo"></div>
     <button onclick="downloadMembers()">Download Members</button>
+    <button onclick="listCustomers()">List Customers</button>
+    <div id="customerList"></div>
 </div>
 <script>
     function generateMembership() {
@@ -148,6 +155,24 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Could not download members.');
+            });
+    }
+
+    function listCustomers() {
+        fetch('/get_all_members')
+            .then(response => response.json())
+            .then(members => {
+                let customerListHTML = "<h2>Customer List</h2><ul>";
+                for (const memberId in members) {
+                    const member = members[memberId];
+                    customerListHTML += `<li>${member.firstName} ${member.lastName} (ID: ${memberId})</li>`;
+                }
+                customerListHTML += "</ul>";
+                document.getElementById("customerList").innerHTML = customerListHTML;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Could not retrieve customer list.');
             });
     }
 </script>
