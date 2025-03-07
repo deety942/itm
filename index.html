@@ -10,14 +10,12 @@
             margin: 0;
             padding: 20px;
         }
-
         .container {
             width: 400px;
             margin: 50px auto;
             border: 1px solid #00FF00;
             padding: 20px;
         }
-
         input, button {
             background-color: black;
             color: #00FF00;
@@ -27,12 +25,10 @@
             width: 100%;
             box-sizing: border-box;
         }
-
         #barcode-container {
             margin-top: 20px;
             text-align: center;
         }
-
         #memberInfo {
             margin-top: 20px;
             border: 1px solid #00FF00;
@@ -69,7 +65,7 @@
     <div id="customerList"></div>
 </div>
 <script>
-    let currentMembershipNumber = null; // Store the generated membership number
+    let currentMembershipNumber = null;
 
     function generateMembership() {
         const firstName = document.getElementById("firstName").value.trim();
@@ -85,8 +81,7 @@
         currentMembershipNumber = Math.floor(Math.random() * 1000000).toString();
         document.getElementById("membershipNumber").textContent = "Membership Number: " + currentMembershipNumber;
 
-        const barcodeData = currentMembershipNumber;
-        JsBarcode("#barcodeImage", barcodeData, {
+        JsBarcode("#barcodeImage", currentMembershipNumber, {
             format: "CODE128",
             displayValue: false,
             width: 1,
@@ -96,33 +91,36 @@
             lineColor: "black",
         });
 
-        fetch('/save_member', {
+        console.log("Sending to server:", { firstName, lastName, username, referenceNumber, membershipNumber: currentMembershipNumber });
+
+        fetch('http://localhost:5000/save_member', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                firstName: firstName,
-                lastName: lastName,
-                username: username,
-                referenceNumber: referenceNumber,
-                membershipNumber: currentMembershipNumber,
+                firstName,
+                lastName,
+                username,
+                referenceNumber,
+                membershipNumber: currentMembershipNumber
             }),
         })
             .then(response => {
+                console.log("Save response status:", response.status);
                 if (!response.ok) {
                     throw new Error('Failed to save member');
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Success:', data);
-                // Auto-populate search field with new membership number
+                console.log('Save success:', data);
                 document.getElementById("searchId").value = currentMembershipNumber;
+                setTimeout(searchMember, 100); // Small delay to ensure server saves
             })
-            .catch((error) => {
-                console.error('Error:', error);
-                document.getElementById("membershipNumber").textContent = "Error saving member";
+            .catch(error => {
+                console.error('Save error:', error);
+                document.getElementById("membershipNumber").textContent = "Error: " + error.message;
             });
     }
 
@@ -133,14 +131,17 @@
             return;
         }
 
-        fetch(`/get_member/${searchId}`)
+        console.log("Searching for ID:", searchId);
+        fetch(`http://localhost:5000/get_member/${searchId}`)
             .then(response => {
+                console.log("Search response status:", response.status);
                 if (!response.ok) {
-                    throw new Error('Member not found');
+                    return response.json().then(err => { throw new Error(err.message || 'Member not found'); });
                 }
                 return response.json();
             })
             .then(member => {
+                console.log("Found member:", member);
                 document.getElementById("memberInfo").innerHTML = `
                     <p><strong>Membership ID:</strong> ${searchId}</p>
                     <p><strong>Name:</strong> ${member.firstName} ${member.lastName}</p>
@@ -149,21 +150,20 @@
                 `;
             })
             .catch(error => {
+                console.error('Search error:', error);
                 document.getElementById("memberInfo").innerHTML = `<p>${error.message}</p>`;
             });
     }
 
     function downloadMembers() {
-        fetch('/get_all_members')
+        fetch('http://localhost:5000/get_all_members')
             .then(response => response.json())
             .then(members => {
                 let text = "First Name,Last Name,Username,Reference Number,Membership Number\n";
-
                 for (const memberId in members) {
                     const member = members[memberId];
                     text += `${member.firstName},${member.lastName},${member.username},${member.referenceNumber},${memberId}\n`;
                 }
-
                 const element = document.createElement('a');
                 element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
                 element.setAttribute('download', 'members.txt');
@@ -179,7 +179,7 @@
     }
 
     function listCustomers() {
-        fetch('/get_all_members')
+        fetch('http://localhost:5000/get_all_members')
             .then(response => response.json())
             .then(members => {
                 let customerListHTML = "<h2>Customer List</h2><ul>";
