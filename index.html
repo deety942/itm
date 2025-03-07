@@ -109,14 +109,14 @@
             .then(response => {
                 console.log("Save response status:", response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to save member');
+                    return response.text().then(text => { throw new Error(`Save failed: ${response.status} - ${text}`); });
                 }
                 return response.json();
             })
             .then(data => {
                 console.log('Save success:', data);
                 document.getElementById("searchId").value = currentMembershipNumber;
-                setTimeout(searchMember, 100); // Small delay to ensure server saves
+                setTimeout(searchMember, 100); // Small delay for server to save
             })
             .catch(error => {
                 console.error('Save error:', error);
@@ -151,7 +151,7 @@
             })
             .catch(error => {
                 console.error('Search error:', error);
-                document.getElementById("memberInfo").innerHTML = `<p>${error.message}</p>`;
+                document.getElementById("memberInfo").innerHTML = `<p>Error: ${error.message}</p>`;
             });
     }
 
@@ -173,8 +173,8 @@
                 document.body.removeChild(element);
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Could not download members.');
+                console.error('Download error:', error);
+                alert('Could not download members: ' + error.message);
             });
     }
 
@@ -191,8 +191,8 @@
                 document.getElementById("customerList").innerHTML = customerListHTML;
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Could not retrieve customer list.');
+                console.error('List error:', error);
+                alert('Could not retrieve customer list: ' + error.message);
             });
     }
 </script>
