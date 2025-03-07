@@ -112,17 +112,23 @@
     }
 
     function searchMember() {
-        const searchId = parseInt(document.getElementById("searchId").value);
-        fetch(`/get_member/${searchId}`)  // Fixed template literal syntax
+        const searchId = document.getElementById("searchId").value.trim(); // Get the input value and remove whitespace
+        if (!searchId) {
+            document.getElementById("memberInfo").innerHTML = "<p>Please enter a Membership ID</p>";
+            return;
+        }
+
+        fetch(`/get_member/${searchId}`)
             .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
+                if (!response.ok) {
                     throw new Error('Member not found');
                 }
+                return response.json();
             })
             .then(member => {
+                // Assuming the backend returns the member object directly
                 document.getElementById("memberInfo").innerHTML = `
+                    <p><strong>Membership ID:</strong> ${searchId}</p>
                     <p><strong>Name:</strong> ${member.firstName} ${member.lastName}</p>
                     <p><strong>Username:</strong> ${member.username}</p>
                     <p><strong>Reference Number:</strong> ${member.referenceNumber}</p>
